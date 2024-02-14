@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <utility>
+#include <limits.h>
+#include <algorithm>
+#include <iomanip>
+#include <math.h>
 using namespace std;
 
 void runApp();
@@ -53,7 +57,7 @@ public:
     bool booked;
     pair<int, int> location;
 
-    Cab(string cab_id)
+    Cab(string cab_id, pair<int, int> location)
     {
         this->cab_id = cab_id;
         this->booked = false;
@@ -137,6 +141,7 @@ string getUsername()
 pair<int, int> getCabLocation()
 {
     int x, y;
+    cout << "Enter the cab location in co-ordinates: " << endl;
     cin >> x >> y;
     pair<int, int> p;
     p.first = x;
@@ -148,13 +153,12 @@ pair<int, int> getCabLocation()
 void admin_signup()
 {
     cout << "Enter Username: " << endl;
-    string username = getUsername();
+    string username;
 
-    if (checkUsername(username))
+    do
     {
-        cout << "Username exists" << endl;
-        admin_signup();
-    }
+        username = getUsername();
+    } while (checkUsername(username) && printf("Username exists\n"));
 
     string pass1, pass2;
 
@@ -172,6 +176,7 @@ void admin_signup()
 
     string name = getName();
     string cab_id = getCabId();
+
     pair<int, int> location = getCabLocation();
 
     Admin tempAdmin(username, password, name, cab_id);
@@ -180,7 +185,22 @@ void admin_signup()
     Cab tempCab(cab_id, location);
     cab_data.push_back(tempCab);
 
-    runApp();
+    cout << "Do you want to add more admins?" << endl;
+
+    cout << "1. Yes" << endl;
+
+    int choice;
+    cin >> choice;
+
+    if (choice == 1)
+    {
+        admin_signup();
+    }
+
+    else
+    {
+        employee();
+    }
 }
 
 void admin_dashboard()
@@ -252,13 +272,12 @@ void admin_login()
 void employee_signup()
 {
     cout << "Enter Username: " << endl;
-    string username = getUsername();
+    string username;
 
-    if (checkUsername(username))
+    do
     {
-        cout << "Username exists" << endl;
-        admin_signup();
-    }
+        username = getUsername();
+    } while (checkUsername(username) && printf("Username exists\n"));
 
     string pass1, pass2;
 
@@ -279,7 +298,20 @@ void employee_signup()
     Employee tempEmployee(username, password, name);
     employee_data.push_back(tempEmployee);
 
-    runApp();
+    cout << "Do you want to add more employees?" << endl;
+
+    cout << "1. Yes" << endl;
+
+    int choice;
+    cin >> choice;
+
+    if (choice == 1)
+    {
+        employee_signup();
+    }
+
+    else
+        employee();
 }
 
 void employee_dashboard()
@@ -290,22 +322,19 @@ void employee_dashboard()
     cout << "  Employee Dashboard   " << endl;
     cout << "=======================" << endl;
 
-    cout << "Enter your location in geometric co-ordinates: " << endl;
+    cout << "Enter your source location in geometric co-ordinates: " << endl;
 
     int xInitial, yInitial;
     cin >> xInitial >> yInitial;
 
-    cout << "Enter your destination location in geometric co-cordinates" << endl;
-    int xFinal, yFinal;
-    cin >> xFinal >> yFinal;
-
     int min = INT_MAX;
     int cabAlloted = 0;
-    for (int i = 0; i < cab_data.size(); ++i)
+
+    for (int i = 0; i < (int)cab_data.size(); ++i)
     {
         int x1 = cab_data[i].location.first;
-        int x2 = cab_data[i].location.second;
-        if (cab_data[i].booked == false)
+        int y1 = cab_data[i].location.second;
+        if (!cab_data[i].booked)
         {
             int distance = (x1 - xInitial) * (x1 - xInitial) + (y1 - yInitial) * (y1 - yInitial);
             if (distance < min)
@@ -317,9 +346,8 @@ void employee_dashboard()
     }
 
     cout << "The cab alloted to you is: " << cab_data[cabAlloted].cab_id << endl;
+    cout << "This cab is " << sqrt(min) << " unit distance away from you." << endl;
     cab_data[cabAlloted].booked = true;
-
-    employee_dashboard();
 }
 
 void employee_login()
@@ -401,7 +429,7 @@ void admin()
 void employee()
 {
     system("CLS");
-    cout << "EMPLOYEE LOGIN/SIGNUP";
+    cout << "EMPLOYEE LOGIN/SIGNUP" << endl;
     cout << "1. SignUp" << endl;
     cout << "2. Login" << endl;
     cout << "3. Go Back" << endl;
